@@ -25,18 +25,15 @@ export const getHttpUri = (uri, ipfsGateway) => {
       if (uri.includes('/ipfs/')) uri = uri.split(':/').pop()
       else throw new Error(`Unrecognized protocol ${protocol}`)
     case 'ipfs':
-      // NOTE the current WIP standard for IPFS uris: https://github.com/ipfs/go-ipfs/issues/1678#issuecomment-157478515
-      // :// -> :/
       uri = uri.replace('://', ':/')
-      // NURI
-      if (uri.substr(0, 5) === '/ipfs' || uri.substr(0, 5) === 'ipfs/') {
-        if (uri.substr(0, 1) === '/') uri = uri.substr(1, uri.length - 1)
+      if (uri.startsWith('/ipfs/') || uri.startsWith('ipfs/')) {
+        if (uri.startsWith('/')) uri = uri.substring(1)
         uri = `${ipfsGateway}/${uri}`
-      }
-      // compatability scheme
-      else if (uri.substr(0, 6) === 'ipfs:/')
+      } else if (uri.startsWith('ipfs:/')) {
         uri = `${ipfsGateway}/ipfs/${uri.split(':/').pop()}`
-      else throw new Error(`Unrecognized protocol ${protocol}`)
+      } else {
+        throw new Error(`Unrecognized protocol ${protocol}`)
+      }
 
       preValidated = true
       break
